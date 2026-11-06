@@ -1,4 +1,8 @@
 import { spawn } from "node:child_process";
+import ffmpegStatic from "ffmpeg-static";
+
+// ffmpeg-static funciona na Vercel; localmente cai para o ffmpeg do sistema.
+const FFMPEG = ffmpegStatic ?? "ffmpeg";
 
 export const SAMPLE_RATE = 24000;
 
@@ -23,7 +27,7 @@ export function pcmToWav(pcm: Buffer): Buffer {
 /** Converte WAV em MP3 via ffmpeg (precisa estar no PATH). */
 export function wavToMp3(wav: Buffer): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const ff = spawn("ffmpeg", ["-v", "error", "-i", "pipe:0", "-codec:a", "libmp3lame", "-b:a", "192k", "-f", "mp3", "pipe:1"]);
+    const ff = spawn(FFMPEG, ["-v", "error", "-i", "pipe:0", "-codec:a", "libmp3lame", "-b:a", "192k", "-f", "mp3", "pipe:1"]);
     const out: Buffer[] = [];
     let err = "";
     ff.stdout.on("data", (d) => out.push(d));
